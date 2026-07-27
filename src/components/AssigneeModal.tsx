@@ -60,13 +60,13 @@ export function AssigneeModal({ isOpen, onClose, onAssigneeAdded }: AssigneeModa
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm font-medium rounded-lg transition"
+              className="px-4 py-2 border border-slate-300 text-slate-700 hover: text-sm font-medium rounded-lg transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg transition"
+              className="px-4 py-2 bg-[#045c1c] hover:bg-[#56c408] text-white text-sm font-medium rounded-lg transition"
             >
               Salvar
             </button>

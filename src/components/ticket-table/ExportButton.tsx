@@ -73,7 +73,7 @@ export function ExportButton({ tickets, isFiltered }: ExportButtonProps) {
       onClick={handleExportCSV}
       disabled={isDisabled}
       suppressHydrationWarning
-      className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition disabled:opacity-50"
+      className="inline-flex items-center gap-1.5 bg-[#045c1c] hover:bg-[#56c408] text-white text-xs font-medium px-3 py-2 rounded-lg transition disabled:opacity-50"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

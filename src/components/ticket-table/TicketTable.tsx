@@ -139,7 +139,7 @@ export function TicketTable({ tickets, assignees, loading }: TicketTableProps) {
                     {ticket.description || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                       {ticket.assignee_name}
                     </span>
                   </td>

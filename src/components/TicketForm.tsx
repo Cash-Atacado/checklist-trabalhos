@@ -120,7 +120,7 @@ export function TicketForm({ assignees, onTicketCreated }: TicketFormProps) {
           <textarea
             name="description"
             rows={3}
-            placeholder="Detalhe o que foi resolvido..."
+            placeholder="Detalhe o que foi resolvido ou do que foi solicitado, para que fique registrado no histórico."
             value={formData.description}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -131,7 +131,7 @@ export function TicketForm({ assignees, onTicketCreated }: TicketFormProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition disabled:opacity-50"
+            className="bg-[#045c1c] hover:bg-[#56c408] text-white font-medium text-sm px-6 py-2.5 rounded-lg transition disabled:opacity-50"
           >
             {submitting ? 'Salvando...' : 'Salvar no Histórico'}
           </button>

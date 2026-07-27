@@ -50,7 +50,7 @@ export default function HomePage() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="self-start sm:self-auto bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-3 py-2 rounded-md transition"
+            className="self-start sm:self-auto bg-[#045c1c] hover:bg-[#56c408] text-white text-xs font-medium px-3 py-2 rounded-md transition"
           >
             + Cadastrar Responsável
           </button>
