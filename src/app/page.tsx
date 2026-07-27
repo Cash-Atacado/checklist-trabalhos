@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { TicketForm } from '@/components/TicketForm';
-import { TicketTable } from '@/components/TicketTable';
-import { AssigneeModal } from '@/components/AssigneeModal';
+import React, { useState, useEffect } from "react";
+import { TicketForm } from "@/components/TicketForm";
+import { TicketTable } from "@/components/TicketTable";
+import { AssigneeModal } from "@/components/AssigneeModal";
 
 export default function HomePage() {
   const [assignees, setAssignees] = useState([]);
@@ -16,8 +16,8 @@ export default function HomePage() {
     setLoading(true);
     try {
       const [resAssignees, resTickets] = await Promise.all([
-        fetch('/api/assignees'),
-        fetch('/api/tickets'),
+        fetch("/api/assignees"),
+        fetch("/api/tickets"),
       ]);
 
       if (resAssignees.ok && resTickets.ok) {
@@ -25,7 +25,7 @@ export default function HomePage() {
         setTickets(await resTickets.json());
       }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.error("Erro ao carregar dados:", error);
     } finally {
       setLoading(false);
     }
@@ -38,14 +38,15 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        
         {/* Cabeçalho */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
               Controle de Tarefas & Chamados
             </h1>
-            <p className="text-slate-500 text-sm">Histórico e registro das solicitações do setor</p>
+            <p className="text-slate-500 text-sm">
+              Histórico e registro das solicitações do setor
+            </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -58,8 +59,12 @@ export default function HomePage() {
         {/* Componente: Formulário */}
         <TicketForm assignees={assignees} onTicketCreated={fetchData} />
 
-        {/* Componente: Tabela de Histórico */}
-        <TicketTable tickets={tickets} loading={loading} />
+        {/* Componente: Tabela de Histórico com Filtro */}
+        <TicketTable
+          tickets={tickets}
+          assignees={assignees}
+          loading={loading}
+        />
 
         {/* Componente: Modal */}
         <AssigneeModal
