@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { createClient } from '@/lib/supabase/server';
 
-// GET: Buscar todos os responsáveis ativos para preencher o <select>
+// GET: Buscar todos os responsáveis ativos
 export async function GET() {
   try {
-    const result = await pool.query(
-      'SELECT id, name FROM assignees WHERE is_active = true ORDER BY name ASC'
-    );
+    const supabase = await createClient();
 
-    return NextResponse.json(result.rows, { status: 200 });
+    const { data, error } = await supabase
+      .from('assignees')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error('Erro ao buscar responsáveis:', error);
     return NextResponse.json(
@@ -18,7 +26,7 @@ export async function GET() {
   }
 }
 
-// POST: Cadastrar um novo responsável no setor
+// POST: Cadastrar um novo responsável
 export async function POST(request: Request) {
   try {
     const { name } = await request.json();
@@ -30,12 +38,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await pool.query(
-      'INSERT INTO assignees (name) VALUES ($1) RETURNING id, name',
-      [name.trim()]
-    );
+    const supabase = await createClient();
 
-    return NextResponse.json(result.rows[0], { status: 201 });
+    const { data, error } = await supabase
+      .from('assignees')
+      .insert([{ name: name.trim() }])
+      .select('id, name')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(data, { status: 201 });
   } catch (error) {
     console.error('Erro ao cadastrar responsável:', error);
     return NextResponse.json(
@@ -44,4 +59,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -1,26 +1,43 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { createClient } from '@/lib/supabase/server';
 
-// GET: Buscar o histórico de chamados (com o nome do responsável via JOIN)
+// GET: Buscar histórico de chamados (com o nome do responsável via JOIN)
 export async function GET() {
   try {
-    const query = `
-      SELECT 
-        t.id,
-        t.requester_name,
-        t.reason,
-        t.description,
-        t.opened_at,
-        a.id AS assignee_id,
-        a.name AS assignee_name
-      FROM tickets t
-      INNER JOIN assignees a ON t.assignee_id = a.id
-      ORDER BY t.opened_at DESC;
-    `;
+    const supabase = await createClient();
 
-    const result = await pool.query(query);
+    const { data, error } = await supabase
+      .from('tickets')
+      .select(`
+        id,
+        requester_name,
+        reason,
+        description,
+        opened_at,
+        assignee_id,
+        assignees!inner (
+          id,
+          name
+        )
+      `)
+      .order('opened_at', { ascending: false });
 
-    return NextResponse.json(result.rows, { status: 200 });
+    if (error) {
+      throw error;
+    }
+
+    // Mapeia para manter o mesmo formato plano que o seu frontend já espera
+    const formattedTickets = data.map((ticket: any) => ({
+      id: ticket.id,
+      requester_name: ticket.requester_name,
+      reason: ticket.reason,
+      description: ticket.description,
+      opened_at: ticket.opened_at,
+      assignee_id: ticket.assignee_id,
+      assignee_name: ticket.assignees?.name || 'Não informado',
+    }));
+
+    return NextResponse.json(formattedTickets, { status: 200 });
   } catch (error) {
     console.error('Erro ao buscar histórico de chamados:', error);
     return NextResponse.json(
@@ -30,13 +47,12 @@ export async function GET() {
   }
 }
 
-// POST: Registrar um novo chamado/tarefa
+// POST: Registrar um novo chamado
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { requester_name, reason, description, assignee_id } = body;
 
-    // Validação simples dos campos obrigatórios
     if (!requester_name || !reason || !assignee_id) {
       return NextResponse.json(
         { error: 'Solicitante, Motivo e Responsável são obrigatórios.' },
@@ -44,22 +60,30 @@ export async function POST(request: Request) {
       );
     }
 
-    const query = `
-      INSERT INTO tickets (requester_name, reason, description, assignee_id)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, requester_name, reason, description, opened_at;
-    `;
+    const supabase = await createClient();
 
-    const values = [
-      requester_name.trim(),
-      reason.trim(),
-      description ? description.trim() : null,
-      assignee_id,
-    ];
+    // Captura o usuário logado via cookie para salvar o user_id automaticamente
+    const { data: { user } } = await supabase.auth.getUser();
 
-    const result = await pool.query(query, values);
+    const { data, error } = await supabase
+      .from('tickets')
+      .insert([
+        {
+          requester_name: requester_name.trim(),
+          reason: reason.trim(),
+          description: description ? description.trim() : null,
+          assignee_id,
+          user_id: user?.id || null, // Atribui o ID do usuário logado no Supabase Auth
+        },
+      ])
+      .select('id, requester_name, reason, description, opened_at')
+      .single();
 
-    return NextResponse.json(result.rows[0], { status: 201 });
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(data, { status: 201 });
   } catch (error) {
     console.error('Erro ao salvar chamado:', error);
     return NextResponse.json(
@@ -68,4 +92,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
