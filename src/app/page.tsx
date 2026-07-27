@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { TicketForm } from "@/components/TicketForm";
-import { TicketTable } from "@/components/TicketTable";
+import { TicketTable } from "@/components/ticket-table/TicketTable";
 import { AssigneeModal } from "@/components/AssigneeModal";
 
 export default function HomePage() {

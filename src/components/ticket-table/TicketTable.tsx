@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { TableFilters } from './TableFilters';
+import { ExportButton } from './ExportButton';
 
 interface Ticket {
   id: string;
@@ -24,30 +26,24 @@ interface TicketTableProps {
 }
 
 export function TicketTable({ tickets, assignees, loading }: TicketTableProps) {
-  // Estados para os filtros
   const [selectedAssignee, setSelectedAssignee] = useState<string>('ALL');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
-  // Lógica de filtragem combinada (Responsável + Intervalo de Datas)
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket) => {
-      // 1. Filtro por Responsável
       const matchesAssignee =
         selectedAssignee === 'ALL' || ticket.assignee_id === selectedAssignee;
 
-      // Converter a data do chamado para objeto Date do JS (ignorando hora para comparar só dia)
       const ticketDate = new Date(ticket.opened_at);
       ticketDate.setHours(0, 0, 0, 0);
 
-      // 2. Filtro por Data Inicial
       let matchesStartDate = true;
       if (startDate) {
         const start = new Date(startDate + 'T00:00:00');
         matchesStartDate = ticketDate >= start;
       }
 
-      // 3. Filtro por Data Final
       let matchesEndDate = true;
       if (endDate) {
         const end = new Date(endDate + 'T00:00:00');
@@ -58,7 +54,6 @@ export function TicketTable({ tickets, assignees, loading }: TicketTableProps) {
     });
   }, [tickets, selectedAssignee, startDate, endDate]);
 
-  // Função para limpar todos os filtros de uma vez
   const handleClearFilters = () => {
     setSelectedAssignee('ALL');
     setStartDate('');
@@ -69,9 +64,9 @@ export function TicketTable({ tickets, assignees, loading }: TicketTableProps) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      {/* Cabeçalho da Tabela com Área de Filtros */}
+      {/* Cabeçalho */}
       <div className="p-6 border-b border-slate-100 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Histórico de Tarefas</h2>
             <p className="text-slate-500 text-xs">
@@ -79,64 +74,31 @@ export function TicketTable({ tickets, assignees, loading }: TicketTableProps) {
             </p>
           </div>
 
-          {/* Botão para resetar filtros (aparece só se houver filtro ativo) */}
-          {hasActiveFilters && (
-            <button
-              onClick={handleClearFilters}
-              className="text-xs text-red-600 hover:text-red-800 font-medium self-start sm:self-auto underline transition"
-            >
-              Limpar Filtros
-            </button>
-          )}
-        </div>
+          <div className="flex items-center gap-2">
+            {hasActiveFilters && (
+              <button
+                onClick={handleClearFilters}
+                className="text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 transition"
+              >
+                Limpar Filtros
+              </button>
+            )}
 
-        {/* Barra de Filtros */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-          {/* Filtro 1: Responsável */}
-          <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
-              Responsável
-            </label>
-            <select
-              value={selectedAssignee}
-              onChange={(e) => setSelectedAssignee(e.target.value)}
-              className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
-            >
-              <option value="ALL">Todos os Responsáveis</option>
-              {assignees.map((assignee) => (
-                <option key={assignee.id} value={assignee.id}>
-                  {assignee.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Filtro 2: Data Inicial */}
-          <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
-              Data Inicial
-            </label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
-            />
-          </div>
-
-          {/* Filtro 3: Data Final */}
-          <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
-              Data Final
-            </label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
-            />
+            {/* Subcomponente: Botão de Exportação */}
+            <ExportButton tickets={filteredTickets} isFiltered={hasActiveFilters} />
           </div>
         </div>
+
+        {/* Subcomponente: Filtros */}
+        <TableFilters
+          assignees={assignees}
+          selectedAssignee={selectedAssignee}
+          startDate={startDate}
+          endDate={endDate}
+          onAssigneeChange={setSelectedAssignee}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
       </div>
 
       {/* Tabela de Dados */}
