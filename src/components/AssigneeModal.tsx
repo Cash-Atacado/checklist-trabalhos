@@ -29,10 +29,12 @@ export function AssigneeModal({ isOpen, onClose, onAssigneeAdded }: AssigneeModa
         onAssigneeAdded();
         onClose();
       } else {
-        alert('Erro ao cadastrar novo responsável.');
+        const errData = await res.json();
+        alert(`Erro ao cadastrar responsável (${res.status}): ${errData.error || 'Erro desconhecido'}`);
       }
     } catch (error) {
       console.error('Erro ao salvar responsável:', error);
+      alert('Erro de rede ao conectar com o servidor.');
     }
   };
 
